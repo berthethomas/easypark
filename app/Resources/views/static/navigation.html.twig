@@ -1,0 +1,50 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+            <center>
+                <a href="#">
+                    <img src="{{asset("img/logo.png")}}" class="logo-header">
+                </a>
+            </center>
+            <div class="dropdown profile-element">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    <span class="clear"> 
+                        <span class="block m-t-xs"> 
+                            <strong class="font-bold">{{app.user.nom}} {{app.user.prenom}} <b class="caret"></b></strong>
+                        </span> 
+                        <span class="text-muted text-xs block">{{app.user.username}} </span> 
+                    </span> </a>
+                <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                    <li><a href="{{path("edit_account")}}">Profil</a></li>
+                        {%if app.user.facebookId == null%}
+                        <li><a href="{{path("change_password")}}">Changer de mot de passe</a></li>
+                        {%endif%}
+                    <li class="divider"></li>
+                    <li><a href="{{path("fos_user_security_logout")}}">Déconnexion</a></li>
+                </ul>
+            </div>
+            </li>
+            <li>
+                <a href="{{path('homepage')}}"><i class="fa fa-home"></i> <span class="nav-label">Accueil</span></a>
+            </li>
+            <li>
+                <a href="{{path('find')}}"><i class="fa fa-car" aria-hidden="true"></i> <span class="nav-label">Chercher un emplacement</span> </a>
+            </li>
+            <li>
+                <a href="{{path('offres')}}"><i class="fa fa-map-marker" aria-hidden="true"></i> <span class="nav-label">Proposer un emplacement</span> </a>
+            </li>
+            <li>
+                <a href="{{path('edit_account')}}"><i class="fa fa-info-circle" aria-hidden="true"></i> <span class="nav-label">Informations sur le compte</span> </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<script>
+    $(document).ready(function () {
+        $("#navp").find('li').removeClass('active');
+        $('a[href="' + this.location.pathname + '"]').parent().addClass('active');
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>

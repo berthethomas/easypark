@@ -1,0 +1,66 @@
+{% extends "base.html.twig" %}
+{% block title %}Création d'un compte{%endblock%}
+{% block stylesheets %}
+    <link href="{{asset("css/bootstrap.min.css")}}" rel="stylesheet">
+    <link href="{{asset("fonts/font-awesome/font-awesome.css")}}" rel="stylesheet">
+    <link href="{{asset("css/animate.css")}}" rel="stylesheet">
+    <link href="{{asset("css/style.css")}}" rel="stylesheet">
+{% endblock %}
+{% block javascripts %}
+    <!-- Mainly scripts -->
+    <script src="{{asset("js/jquery-2.1.1.js")}}"></script>
+    <script src="{{asset("js/bootstrap.min.js")}}"></script>
+    <script src="{{asset("js/plugins/iCheck/icheck.min.js")}}"></script>
+{% endblock %}
+{%block body%}
+    <div class="middle-box text-center loginscreenani mated fadeInDown">
+        <div>
+            <center>
+                <img src="{{asset("img/logo.png")}}" class="logo-header">
+            </center>
+            <h3>Créer un compte sur EasyPark</h3>
+            <form class="m-t" role="form" action="{{path('create_account')}}" method='POST'>
+                {{form_start(form)}}
+                <div class="form-group">
+                    {{form_widget(form.nom)}}
+
+                </div>
+                <div class="form-group">
+                    {{form_widget(form.prenom)}}
+                </div>
+                <div class="form-group">
+                    {{form_widget(form.email)}}
+                </div>
+                <div class="form-group">
+                    {{form_widget(form.phonenumber)}}
+                </div>
+                <div class="form-group">
+                    {{form_widget(form.plainPassword['first'])}}
+                </div>
+                <div class="form-group">
+                    {{form_widget(form.plainPassword['second'])}}
+                </div>
+                <div class="form-group">
+                    {{form_widget(form.type)}}
+                </div>
+                <button type="submit" class="btn btn-primary block full-width m-b">Créer un compte</button>
+
+                <p class="text-muted text-center"><small>Déjà un compte ?</small></p>
+                <a class="btn btn-sm btn-white btn-block" href="{{path('fos_user_security_login')}}">Se connecter</a>
+                {{form_end(form)}}
+            </form>
+            <p class="m-t"> <small><strong>Copyright</strong> Thomas Berthé &copy; 2018</small> </p>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+            $("body").addClass('gray-bg');
+            $('label[for="appbundle_user_plainPassword_first"]').hide();
+            $('label[for="appbundle_user_plainPassword_second"]').hide();
+        });
+    </script>
+{%endblock%}

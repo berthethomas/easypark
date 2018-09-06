@@ -1,0 +1,49 @@
+{% extends "base.html.twig" %}
+{% block title %}{{ parent() }}Connexion{%endblock%}
+{% block stylesheets %}
+    <link href="{{asset("css/bootstrap.min.css")}}" rel="stylesheet">
+    <link href="{{asset("fonts/font-awesome/css/font-awesome.css")}}" rel="stylesheet">
+    <link href="{{asset("css/animate.css")}}" rel="stylesheet">
+    <link href="{{asset("css/style.css")}}" rel="stylesheet">
+    <link href="{{asset("css/plugins/bootstrapSocial/bootstrap-social.css")}}" rel="stylesheet">
+{% endblock %}
+{% block javascripts %}
+    <!-- Mainly scripts -->
+    <script src="{{asset("js/jquery-2.1.1.js")}}"></script>
+    <script src="{{asset("js/bootstrap.min.js")}}"></script>
+{% endblock %}
+{%block body%}
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <div>
+                <center>
+                    <img src="{{asset("img/logo.png")}}" class="logo-header">
+                </center>
+            </div>
+            <h3>EasyPark</h3>
+            <p>
+                Veuillez vous identifier pour accéder à l'application.
+            </p>
+            <form class="m-t" role="form" action="{{ path("fos_user_security_check") }}" method='POST'>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token }}" />
+                <div class="form-group">
+                    <input id='username' type="text" name="_username" value="{{ last_username }}" class="form-control" placeholder="Nom d'utilisateur" required="required">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" name="_password" required="required" class="form-control" placeholder="Mot de passe"/>
+                </div>
+                <button type="submit" id="_submit" name="_submit" class="btn btn-primary block full-width m-b">Connexion</button>
+                <a class="btn btn-block btn-social btn-facebook" href='{{path('login_facebook')}}'>
+                    <span class="fa fa-facebook"></span> Se connecter avec Facebook
+                </a>
+                <p class="text-muted text-center"><small>Pas encore de compte ? Cliquez ici pour vous en créer un <a href="{{path('create_account')}}">Créer un compte</a></small></p>
+            </form>
+            <p class="m-t"> <small><strong>Copyright</strong> Thomas Berthé &copy; 2018</small> </p>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("body").addClass('gray-bg');
+        });
+    </script>
+{%endblock%}

@@ -1,0 +1,177 @@
+{% extends "layout.html.twig" %}
+{% block title %}Chercher un emplacement{%endblock%}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{asset("css/plugins/ionRangeSlider/ion.rangeSlider.css")}}" rel="stylesheet">
+    <link href="{{asset("css/plugins/ionRangeSlider/ion.rangeSlider.skinFlat.css")}}" rel="stylesheet">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset("js/plugins/ionRangeSlider/ion.rangeSlider.min.js")}}"></script>
+{% endblock %}
+{%block content%} 
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-8">
+            <h2><i class="fa fa-car" aria-hidden="true"></i> Chercher un emplacement</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{path('homepage')}}">Accueil</a>
+                </li>
+                <li class="active">
+                    <strong>Chercher un emplacement</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center m-t-lg">
+                    <h1>
+                        Trouver votre stationnement
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="ibox ">
+                    <div class="ibox-content">
+                        <div class="google-map" id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row hidden" id="info-offre">
+            <div class="col-md-12">
+                <div class="ibox ">
+                    <div class="ibox-heading">
+                        Offre : <span id="offre-title"></span>
+                    </div>
+                    <div class="ibox-content">
+                        <ul>
+                            <li>
+                                Description : <span id="offre-description"></span>
+                            </li>
+                            <li>
+                                Addresse : <span id="offre-adresse"></span>
+                            </li>
+                            <li>
+                                Prix (pour une journée) : <span id="offre-prix"></span> €
+                            </li>
+                            <li>
+                                Type : <span id="offre-type"></span>
+                            </li>
+                        </ul>
+                        <form  method="POST" action="{{path('find_offre_checkout')}}">
+                            <input type="hidden" id="offre-id" name="offre"/>
+                            <button type="submit" class="btn btn-lg center btn-primary pull-right btn-heading"><i class="fa fa-cart-plus"></i> Réserver</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $("#ionrange_1").ionRangeSlider({
+            min: 0,
+            max: 20,
+            type: 'single',
+            postfix: " km",
+            maxPostfix: "+",
+            prettify: false,
+            hasGrid: true
+        });
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{token_google}}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer_compiled.js"></script>
+    <script type="text/javascript">
+        var map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 48.864716, lng: 2.349014},
+                zoom: 6
+            });
+            var markers = [];
+        {% for offre in offres %}
+                var mark = marker(map,{{offre.adresse.latitude}} ,{{offre.adresse.longitude}} ,{{offre.id}} , "{{offre.titre}} ({{offre.type.nom}})", "{{asset(offre.type.marker)}}");
+                        markers.push(mark);
+        {% endfor %}
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var mark = marker(map, position.coords.latitude, position.coords.longitude, null, "YOU", "{{asset("img/marker.png")}}");
+                    markers.push(mark);
+                    
+                    var markerCluster = new MarkerClusterer(map, markers, {imagePath: '{{asset('img/m')}}'});
+                });
+            }
+
+            function marker(map, lat, lng, offre_id, msg, icon) {
+                var position = new google.maps.LatLng(lat, lng);
+                var marker = new google.maps.Marker({
+                    position: position,
+                    draggable: true,
+                    title: "info",
+                    icon: {
+                        url: icon, // url
+                        scaledSize: new google.maps.Size(40, 60), // scaled size
+                        origin: new google.maps.Point(0, 0), // origin
+                        anchor: new google.maps.Point(0, 0) // anchor
+                    }
+                });
+                var infowindow = new google.maps.InfoWindow();
+                infowindow.setContent(msg);
+                marker.addListener('mouseover', function () {
+                    infowindow.open(marker.get('map'), marker);
+                });
+                marker.addListener('mouseout', function () {
+                    infowindow.close();
+                });
+                if (offre_id !== null) {
+                    marker.addListener('click', function () {
+                        $.ajax({
+                            //On lui indique le type d'envoie des informations
+                            type: 'POST',
+                            //On lui indique le chemin de la fonction
+                            url: "{{path('find_offre_info')}}",
+                            cache: "false",
+                            async: "false",
+                            dataType: "json",
+                            data: {
+                                'offre': offre_id
+                            },
+                            success: function (response) {
+                                data = JSON.parse(response);
+                                infowindow.open(marker.get('map'), marker);
+
+                                $('#offre-title').empty();
+                                $('#offre-title').append(data.titre);
+
+                                $('#offre-description').empty();
+                                $('#offre-description').append(data.description);
+
+                                $('#offre-adresse').empty();
+                                $('#offre-adresse').append(data.adresse.formatedAdresse);
+
+                                $('#offre-prix').empty();
+                                $('#offre-prix').append(data.prix);
+
+                                $('#offre-type').empty();
+                                $('#offre-type').append(data.type.nom);
+
+                                $('#offre-id').empty();
+                                $('#offre-id').val(data.id);
+
+                                $('#info-offre').removeClass('hidden');
+                            }
+                        });
+                    });
+                }
+                return marker;
+            }
+
+            $(document).on('ready', initMap());
+    </script>
+
+{%endblock%}

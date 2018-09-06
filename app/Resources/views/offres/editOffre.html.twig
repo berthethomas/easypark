@@ -1,0 +1,193 @@
+{% extends "layout.html.twig" %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{asset("css/plugins/datetimepicker/bootstrap-datetimepicker.min.css")}}" rel="stylesheet">
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset("js/plugins/datetimepicker/bootstrap-datetimepicker.min.js")}}"></script>
+{% endblock %}
+
+{% block title %}Modifier un emplacement{%endblock%}
+{%block content%} 
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-8">
+            <h2><i class="fa fa-futbol-o" aria-hidden="true"></i> Modifier un emplacement</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{path('homepage')}}">Accueil</a>
+                </li>
+                <li>
+                    <a href="{{path('offres')}}">Vos emplacements</a>
+                </li>
+                <li class="active">
+                    <strong>Modifier un emplacement</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-4">
+            <a href="{{path('offres')}}" class="btn btn-lg btn-default pull-right btn-heading"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i> Retour</a>
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Emplacement <small>Une fois modifié, votre emplacement sera disponible auprès des autres utilisateurs.</small></h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form action="{{ path('offre_edit', {'offre' : offre.id}) }}" method="post" enctype="multipart/form-data" class="form-horizontal">
+                            {{ form_start(form) }}
+                            <div class="form-group{%if form_errors(form.titre)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.titre)}}</label>
+                                <div class="col-sm-10">
+                                    <div class="input-append date">
+                                        {{ form_widget(form.titre) }} 
+                                        {%if form_errors(form.titre)%}
+                                            <small class="text-danger">{{form_errors(form.titre)}}</small>
+                                        {%endif%}
+                                        <span class="add-on"><i class="icon-th"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.description)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.description)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.description) }} 
+                                    {%if form_errors(form.description)%}
+                                        <small class="text-danger">{{form_errors(form.description)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.prix)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.prix)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.prix) }} 
+                                    {%if form_errors(form.prix)%}
+                                        <small class="text-danger">{{form_errors(form.prix)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.dateDebutValiditee)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.dateDebutValiditee)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.dateDebutValiditee) }} 
+                                    {%if form_errors(form.dateDebutValiditee)%}
+                                        <small class="text-danger">{{form_errors(form.dateDebutValiditee)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.dateFinValiditee)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.dateFinValiditee)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.dateFinValiditee) }} 
+                                    {%if form_errors(form.dateFinValiditee)%}
+                                        <small class="text-danger">{{form_errors(form.dateFinValiditee)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.type)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.type)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.type) }} 
+                                    {%if form_errors(form.type)%}
+                                        <small class="text-danger">{{form_errors(form.type)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <h5 class='text-center'>Adresse</h5>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.adresse.numero)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.adresse.numero)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.adresse.numero) }} 
+                                    {%if form_errors(form.adresse.numero)%}
+                                        <small class="text-danger">{{form_errors(form.adresse.numero)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.adresse.nomRue)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.adresse.nomRue)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.adresse.nomRue) }} 
+                                    {%if form_errors(form.adresse.nomRue)%}
+                                        <small class="text-danger">{{form_errors(form.adresse.nomRue)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.adresse.lieuDit)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.adresse.lieuDit)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.adresse.lieuDit) }} 
+                                    {%if form_errors(form.adresse.lieuDit)%}
+                                        <small class="text-danger">{{form_errors(form.adresse.lieuDit)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.adresse.codePostal)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.adresse.codePostal)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.adresse.codePostal) }} 
+                                    {%if form_errors(form.adresse.codePostal)%}
+                                        <small class="text-danger">{{form_errors(form.adresse.codePostal)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group{%if form_errors(form.adresse.ville)%} has-error{%endif%}">
+                                <label class="col-sm-2 control-label">{{form_label(form.adresse.ville)}}</label>
+                                <div class="col-sm-10">
+                                    {{ form_widget(form.adresse.ville) }} 
+                                    {%if form_errors(form.adresse.ville)%}
+                                        <small class="text-danger">{{form_errors(form.adresse.ville)}}</small>
+                                    {%endif%}
+                                </div>
+                            </div>
+                            {{ form_rest(form) }}
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <div class="col-sm-4 pull-right">
+                                    <a class="btn btn-white pull-right" href='{{path('offres')}}'><i class="fa fa-times-circle-o" aria-hidden="true"></i> Annuler</a>
+                                    <button class="btn btn-primary pull-right" type="submit"><i class="fa fa-floppy-o" aria-hidden="true"></i> Enregistrer</button>
+                                </div>
+                            </div>
+                            {{ form_end(form) }}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $.fn.datetimepicker.dates['fr'] = {
+                days: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
+                daysShort: ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+                daysMin: ["D", "L", "Ma", "Me", "J", "V", "S", "D"],
+                months: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+                monthsShort: ["Jan", "Fev", "Mar", "Avr", "Mai", "Jui", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"],
+                today: "Aujourd'hui",
+                suffix: [],
+                meridiem: ["am", "pm"],
+                weekStart: 1,
+                format: "dd/mm/yyyy hh:ii"
+            };
+
+            $(".form_datetime").datetimepicker({
+                format: "dd/mm/yyyy - hh:ii",
+                language: 'fr',
+                autoclose: false
+            });
+        });
+    </script>
+{%endblock%}

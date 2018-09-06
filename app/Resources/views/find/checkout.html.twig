@@ -1,0 +1,283 @@
+{% extends "layout.html.twig" %}
+{% block title %}Chercher un emplacement{%endblock%}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{asset("css/plugins/fullcalendar/fullcalendar.css")}}" rel="stylesheet">
+    <link href="{{asset("css/plugins/fullcalendar/fullcalendar.print.css")}}" rel='stylesheet' media='print'>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{asset("js/plugins/fullcalendar/moment.min.js")}}"></script>
+    <script src="{{asset("js/plugins/fullcalendar/fullcalendar.min.js")}}"></script>
+{% endblock %}
+{%block content%} 
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-8">
+            <h2><i class="fa fa-car" aria-hidden="true"></i> Chercher un emplacement</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="{{path('homepage')}}">Accueil</a>
+                </li>
+                <li>
+                    <a href="{{path('find')}}">Chercher un emplacement</a>
+                </li>
+                <li class="active">
+                    <strong>Réserver un créneau</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-lg-4">
+            <a href="{{path('find')}}" class="btn btn-lg btn-default pull-right btn-heading"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i> Retour</a>
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center m-t-lg">
+                    <h1>
+                        Réserver un créneau horaire
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="ibox ">
+                    <div class="ibox-content">
+                        <div class="google-map" id="map"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ibox ">
+                    <div class="ibox-heading">
+                        Offre : {{offre.titre}}
+                    </div>
+                    <div class="ibox-content">
+                        <ul>
+                            <li>
+                                Description : {{offre.description}}
+                            </li>
+                            <li>
+                                Addresse : {{offre.adresse.formatedAdresse}}
+                            </li>
+                            <li>
+                                Prix (pour une journée) : {{offre.prix}} €
+                            </li>
+                            <li>
+                                Type : {{offre.type.nom}}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="passed-date" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated bounceInRight">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-times-circle-o modal-icon"></i>
+                        <h4 class="modal-title">Opération impossible</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Opération impossible car la date choisie est antérieure à la date du jour.</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="reserved" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated bounceInRight">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-times-circle-o modal-icon"></i>
+                        <h4 class="modal-title">Opération impossible</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>La date choisie pour cet emplacement est déjà réservée.</strong></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-white" data-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal inmodal" id="reservation" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content animated bounceInRight">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <i class="fa fa-car modal-icon"></i>
+                        <h4 class="modal-title">Réservation</h4>
+                        <small class="font-bold">Rappel : Une fois validée, la réservation ne peut être annulée.</small>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Date de réservation : </strong> <span id="date-resa"></span></p>
+                        <p><strong>Information sur votre location : </strong></p>
+                        <p>
+                        <ul>
+                            <li>
+                                Type d'emplacement : {{offre.type.nom}}
+                            </li>
+                            <li>
+                                Description : {{offre.titre}}
+                                <br>
+                                {{offre.description}}
+                            </li>
+                            <li>
+                                Adresse : 
+                                <ul>
+                                    {%if offre.adresse.numero != null or offre.adresse.nomRue != null %}
+                                        <li>
+                                            {{offre.adresse.numero}} {{offre.adresse.nomRue}}
+                                        </li>
+                                    {%endif%}
+                                    {%if offre.adresse.lieuDit != null%}
+                                        <li>
+                                            {{offre.adresse.lieuDit}}
+                                        </li>
+                                    {%endif%}
+                                    <li>
+                                        {{offre.adresse.codePostal}} {{offre.adresse.ville}}
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+
+                        <form action='{{path('find_offre_reserve', {'offre' : offre.id})}}' method='POST'>
+                            <input type='hidden' name='date-resa' value='' id='value-date-resa'/>
+                            <button type="button" class="btn btn-white" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Valider la réservation</button>
+                        </form>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{token_google}}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer_compiled.js"></script>
+    <script type="text/javascript">
+        var map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat:{{offre.adresse.latitude}}, lng:{{offre.adresse.longitude}}}
+                ,
+                zoom: 20
+            }
+            );
+            var markers = [];
+            var mark = marker(map, "{{offre.adresse.latitude}}", "{{offre.adresse.longitude}}", "{{offre.id}}", "{{offre.titre}}", "{{asset(offre.type.marker)}}");
+            markers.push(mark);
+            var markerCluster = new MarkerClusterer(map, markers, {imagePath: '{{asset('img/m')}}'});
+        }
+
+        function marker(map, lat, lng, offre_id, msg, icon) {
+            var position = new google.maps.LatLng(lat, lng);
+            var marker = new google.maps.Marker({
+                position: position,
+                draggable: true,
+                title: "info",
+                icon: {
+                    url: icon, // url
+                    scaledSize: new google.maps.Size(40, 60), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                }
+            });
+            var infowindow = new google.maps.InfoWindow();
+            infowindow.setContent(msg);
+            marker.addListener('mouseover', function () {
+                infowindow.open(marker.get('map'), marker);
+            });
+            marker.addListener('mouseout', function () {
+                infowindow.close();
+            });
+            return marker;
+        }
+        $(document).on('ready', initMap());
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            function IsDateHasEvent(date) {
+                var hasEvent = false;
+                var allEvents = [];
+                allEvents = $('#calendar').fullCalendar('clientEvents');
+                $.each(allEvents, function (i, event) {
+                    var check = moment.utc(event.start._i).diff(moment.utc(date._d), "days");
+                    if (check === 0) {
+                        hasEvent = "reserved";
+                    }
+                });
+
+                if (moment.utc().diff(moment.utc(date._d), "days") > 0) {
+                    $('#passed-date').modal('show');
+                    hasEvent = "passed";
+                }
+
+                return hasEvent;
+            }
+
+            /* initialize the calendar
+             -----------------------------------------------------------------*/
+            var date = new Date();
+            var d = date.getDate();
+            var m = date.getMonth();
+            var y = date.getFullYear();
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                editable: false,
+                droppable: false,
+                dayClick: function (date, allDay, jsEvent, view) {
+
+                    if (!IsDateHasEvent(date)) {
+                        selectedDate = date;
+
+                        $('#date-resa').empty();
+                        $('#date-resa').append(selectedDate.format('DD/MM/YYYY'));
+                        $('#value-date-resa').val(selectedDate.format('DD/MM/YYYY'));
+                        $('#reservation').modal('show');
+                    } else if (IsDateHasEvent(date) === "reserved") {
+                        $('#reserved').modal('show');
+                    }
+                },
+                events: [
+        {%for resa in reservations%}
+                        {
+                            start: '{{resa.date|date('Y-m-d')}}T00:00:00',
+                            end: '{{resa.date|date('Y-m-d')}}T00:00:00',
+                            rendering: 'background',
+                            allDay: true,
+                            color: '#ff9f89'
+                        },
+        {%endfor%}
+                    ]
+                });
+            });
+
+    </script>
+
+{%endblock%}

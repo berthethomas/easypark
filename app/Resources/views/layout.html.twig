@@ -1,0 +1,117 @@
+{% extends "base.html.twig" %}
+{% block stylesheets %}
+    <link href="{{asset("css/bootstrap.min.css")}}" rel="stylesheet">
+    <link href="{{asset("fonts/font-awesome/css/font-awesome.css")}}" rel="stylesheet">
+    <link href="{{asset("css/animate.css")}}" rel="stylesheet">
+    <link href="{{asset("css/style.css")}}" rel="stylesheet">
+    <link href="{{asset("css/plugins/toastr/toastr.min.css")}}" rel="stylesheet">
+{% endblock %}
+{% block javascripts %}
+    <!-- Mainly scripts -->
+    <script src="{{asset("js/jquery-2.1.1.js")}}"></script>
+    <script src="{{asset("js/bootstrap.min.js")}}"></script>
+    <script src="{{asset("js/plugins/metisMenu/jquery.metisMenu.js")}}"></script>
+    <script src="{{asset("js/plugins/slimscroll/jquery.slimscroll.min.js")}}"></script>
+    <script src="{{asset("js/plugins/dataTables/datatables.min.js")}}"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script src="{{asset("js/inspinia.js")}}"></script>
+    <script src="{{asset("js/plugins/pace/pace.min.js")}}"></script>
+    <script src="{{asset("js/plugins/toastr/toastr.min.js")}}"></script>
+{% endblock %}
+{% block title %}{{ parent() }}{%endblock%}
+{%block body%}
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            toastr.options = {
+                closeButton: true,
+                debug: false,
+                progressBar: true,
+                preventDuplicates: true,
+                positionClass: 'toast-top-right',
+                onclick: null,
+                timeOut: 7000
+            };
+
+            $.extend(true, $.fn.dataTable.defaults, {
+                language: {
+                    "sProcessing": "Traitement en cours...",
+                    "sSearch": "Rechercher&nbsp;:",
+                    "sLengthMenu": "Afficher _MENU_ &eacute;l&eacute;ments",
+                    "sInfo": "Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments",
+                    "sInfoEmpty": "Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment",
+                    "sInfoFiltered": "(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)",
+                    "sInfoPostFix": "",
+                    "sLoadingRecords": "Chargement en cours...",
+                    "sZeroRecords": "Aucun &eacute;l&eacute;ment &agrave; afficher",
+                    "sEmptyTable": "Aucune donn&eacute;e disponible dans le tableau",
+                    "oPaginate": {
+                        "sFirst": "Premier",
+                        "sPrevious": "Pr&eacute;c&eacute;dent",
+                        "sNext": "Suivant",
+                        "sLast": "Dernier"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": activer pour trier la colonne par ordre croissant",
+                        "sSortDescending": ": activer pour trier la colonne par ordre d&eacute;croissant"
+                    }
+
+                },
+                responsive: true,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {
+                        extend: 'print',
+                        customize: function (win) {
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                    .addClass('compact')
+                                    .css('font-size', 'inherit');
+                        }
+                    }
+                ]
+            });
+
+        {% for message in app.flashes('success') %}
+            {%if message == "change_password.flash.success"%}
+                    toastr.success("Le mot de passe a été modifié.", 'Bien joué !');
+            {%else%}
+                    toastr.success("{{ message }}", 'Bien joué !');
+            {%endif%} 
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+                toastr.error("{{ message }}", 'Dommage...');
+        {% endfor %}
+
+                $(document).on({
+                    ajaxStart: function () {
+                        $('#loader').removeClass("hidden");
+                        $('#wrapper').addClass("loading");
+                    },
+                    ajaxStop: function () {
+                        $('#loader').addClass("hidden");
+                        $('#wrapper').removeClass("loading");
+                    }
+                });
+            });
+    </script>
+    <div id="loader" class="sk-spinner sk-spinner-wave hidden">
+        <div class="sk-rect1"></div>
+        <div class="sk-rect2"></div>
+        <div class="sk-rect3"></div>
+        <div class="sk-rect4"></div>
+        <div class="sk-rect5"></div>
+    </div>
+    <div id="wrapper">
+        {% include "static/navigation.html.twig" %}
+        {% include "static/header.html.twig" %}
+        <div id="page-wrapper" class="gray-bg">
+            {%block content%}
+            {%endblock%}
+            {% include "static/footer.html.twig" %}
+        </div>
+    </div>
+{%endblock%}
