@@ -62,6 +62,9 @@
                             <li>
                                 Type : <span id="offre-type"></span>
                             </li>
+                            <li>
+                                Distance : <span id='distance'></span> Km
+                            </li>
                         </ul>
                         <form  method="POST" action="{{path('find_offre_checkout')}}">
                             <input type="hidden" id="offre-id" name="offre"/>
@@ -86,9 +89,9 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{token_google}}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-marker-clusterer/1.0.0/markerclusterer_compiled.js"></script>
+    <script src="{{asset('js/map.js')}}"></script>
     <script type="text/javascript">
-        var map;
-
+        var current_pos;
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
                 center: {lat: 48.864716, lng: 2.349014},
@@ -100,9 +103,10 @@
                         markers.push(mark);
         {% endfor %}
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    var mark = marker(map, position.coords.latitude, position.coords.longitude, null, "YOU", "{{asset("img/marker.png")}}");
+                    current_pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    var mark = marker(map, position.coords.latitude, position.coords.longitude, null, "Votre position", "{{asset("img/marker_you.png")}}");
                     markers.push(mark);
-                    
+
                     var markerCluster = new MarkerClusterer(map, markers, {imagePath: '{{asset('img/m')}}'});
                 });
             }
@@ -111,7 +115,7 @@
                 var position = new google.maps.LatLng(lat, lng);
                 var marker = new google.maps.Marker({
                     position: position,
-                    draggable: true,
+                    draggable: false,
                     title: "info",
                     icon: {
                         url: icon, // url
@@ -162,6 +166,11 @@
 
                                 $('#offre-id').empty();
                                 $('#offre-id').val(data.id);
+
+                                var arr = new google.maps.LatLng(lat, lng);
+
+                                $('#distance').empty();
+                                $('#distance').append(getDistance(current_pos, arr));
 
                                 $('#info-offre').removeClass('hidden');
                             }

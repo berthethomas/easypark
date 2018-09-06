@@ -40,7 +40,7 @@ class FindController extends Controller {
 
         if ($offre !== NULL) {
             $normalizer = new ObjectNormalizer();
-            $normalizer->setCircularReferenceLimit(2);
+            $normalizer->setCircularReferenceLimit(1);
             $normalizer->setCircularReferenceHandler(function ($object) {
                 return $object->getId();
             });
