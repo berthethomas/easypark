@@ -38,9 +38,9 @@ class FindController extends Controller {
      */
     public function findByTypeAction(Request $request) {
         if ($request->isXmlHttpRequest()) {
-            if ($type = $request->request->get('type') !== NULL) {
+            if ($request->request->get('type') !== NULL) {
                 $repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:TypeOffre');
-                $type = $repository->find($type) !== NULL ? $repository->find($type) : NULL;
+                $type = $repository->find($request->request->get('type')) !== NULL ? $repository->find($request->request->get('type')) : NULL;
 
                 $repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:Offre');
                 $offres = $repository->findByUserAndType($this->getUser(), $type);

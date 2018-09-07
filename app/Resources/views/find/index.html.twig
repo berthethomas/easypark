@@ -120,7 +120,7 @@
                 center: {lat: 48.864716, lng: 2.349014},
                 zoom: 6
             });
-
+            var markers = [];
         {% for offre in offres %}
                 var mark = marker(map,{{offre.adresse.latitude}} ,{{offre.adresse.longitude}} ,{{offre.id}} , "{{offre.titre}} ({{offre.type.nom}})", "{{asset(offre.type.marker)}}");
                         markers.push(mark);
@@ -219,16 +219,30 @@
                     },
                     success: function (response) {
                         data = JSON.parse(response);
-                        console.log(data);
-                        setMapOnAll(map);
+                        $('#info-offre').addClass('hidden');
+                        resetMap(map, data);
                     }
                 });
             });
 
-            function setMapOnAll(map) {
-                for (var i = 0; i < markers.length; i++) {
-                    markers[i].setMap(map);
-                }
+            function resetMap(map, data) {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    center: {lat: 48.864716, lng: 2.349014},
+                    zoom: 6
+                });
+                var markers = [];
+                $.each(data, function (i, offre) {
+                    var mark = marker(map, offre.adresse.latitude, offre.adresse.longitude, offre.id, offre.titre + " (" + offre.type.nom + ")", "{{asset("img/marker.png")}}");
+                    markers.push(mark);
+                });
+
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    current_pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    var mark = marker(map, position.coords.latitude, position.coords.longitude, null, "Votre position", "{{asset("img/marker_you.png")}}");
+                    markers.push(mark);
+
+                    var markerCluster = new MarkerClusterer(map, markers, {imagePath: '{{asset('img/m')}}'});
+                });
             }
     </script>
 
