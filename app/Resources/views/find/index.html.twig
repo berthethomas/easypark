@@ -36,12 +36,35 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="ibox ">
-                    <div class="ibox-content">
-                        <div class="google-map" id="map"></div>
+                    <div class="">
+                        <div class="col-md-10">
+                            <div class="google-map" id="map"></div>
+                        </div>
+                        <div class="col-md-2">
+                            <h4 class='text-center'>Recherche</h4>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">Type</label>
+                                    <select class="form-control" id="search-type">
+                                        <option value="">Tout</option>
+                                        {%for type in typesOffres%}
+                                            <option value="{{type.id}}">{{type.nom}}</option>
+                                        {%endfor%}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <br>
+                                    <button class="btn btn-primary full-width" type="button" id="search"><i class="fa fa-search" aria-hidden="true"></i> Rechercher</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="row hidden" id="info-offre">
             <div class="col-md-12">
                 <div class="ibox ">
@@ -97,7 +120,7 @@
                 center: {lat: 48.864716, lng: 2.349014},
                 zoom: 6
             });
-            var markers = [];
+
         {% for offre in offres %}
                 var mark = marker(map,{{offre.adresse.latitude}} ,{{offre.adresse.longitude}} ,{{offre.id}} , "{{offre.titre}} ({{offre.type.nom}})", "{{asset(offre.type.marker)}}");
                         markers.push(mark);
@@ -181,6 +204,32 @@
             }
 
             $(document).on('ready', initMap());
+
+            $('#search').on('click', function () {
+                $.ajax({
+                    //On lui indique le type d'envoie des informations
+                    type: 'POST',
+                    //On lui indique le chemin de la fonction
+                    url: "{{path('find_offre_by_offre')}}",
+                    cache: "false",
+                    async: "false",
+                    dataType: "json",
+                    data: {
+                        'type': $('#search-type').val()
+                    },
+                    success: function (response) {
+                        data = JSON.parse(response);
+                        console.log(data);
+                        setMapOnAll(map);
+                    }
+                });
+            });
+
+            function setMapOnAll(map) {
+                for (var i = 0; i < markers.length; i++) {
+                    markers[i].setMap(map);
+                }
+            }
     </script>
 
 {%endblock%}

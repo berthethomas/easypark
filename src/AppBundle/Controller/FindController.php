@@ -23,10 +23,41 @@ class FindController extends Controller {
         $repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:Offre');
         $offres = $repository->getOffresByUser($this->getUser());
 
+        $repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:TypeOffre');
+        $types = $repository->findAll();
+
         return $this->render('find/index.html.twig', array(
                     'offres' => $offres,
+                    'typesOffres' => $types,
                     'token_google' => $this->getParameter('GOOGLE_API_KEY')
         ));
+    }
+
+    /**
+     * @Route("/find/type/offre", name="find_offre_by_offre", methods={"POST"})
+     */
+    public function findByTypeAction(Request $request) {
+        if ($request->isXmlHttpRequest()) {
+            if ($type = $request->request->get('type') !== NULL) {
+                $repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:TypeOffre');
+                $type = $repository->find($type) !== NULL ? $repository->find($type) : NULL;
+
+                $repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:Offre');
+                $offres = $repository->findByUserAndType($this->getUser(), $type);
+
+                $normalizer = new ObjectNormalizer();
+                $normalizer->setCircularReferenceLimit(1);
+                $normalizer->setCircularReferenceHandler(function ($object) {
+                    return $object->getId();
+                });
+
+                $encoders = array(new XmlEncoder(), new JsonEncoder());
+                $normalizers = array($normalizer);
+                $serializer = new Serializer($normalizers, $encoders);
+
+                return new JsonResponse($serializer->serialize($offres, 'json'));
+            }
+        }
     }
 
     /**
@@ -86,7 +117,7 @@ class FindController extends Controller {
         if ($date !== NULL && $this->validateDate($date)) {
             $date = \DateTime::createFromFormat("d/m/Y", $date);
             $date->setTime(0, 0, 0);
-            
+
             $user = $this->getUser();
 
             $reservation = new Reservation();

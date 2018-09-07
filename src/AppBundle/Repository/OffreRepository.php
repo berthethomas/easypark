@@ -4,6 +4,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\Offre;
 use AppBundle\Entity\User;
+use AppBundle\Entity\TypeOffre;
 
 /**
  * OffreRepository
@@ -37,4 +38,18 @@ class OffreRepository extends \Doctrine\ORM\EntityRepository {
         return $query->getResult();
     }
 
+    public function findByUserAndType(User $user, TypeOffre $type) {
+        $query = $this->getEntityManager()
+                ->createQuery("SELECT o
+                              FROM AppBundle:Offre o
+                              JOIN o.type t 
+                              JOIN o.auteur a
+                              WHERE t.id = :type_id 
+                              AND a.id != :user_id");
+
+        $query->setParameter('type_id', $type->getId());
+        $query->setParameter('user_id', $user->getId());
+
+        return $query->getResult();
+    }
 }
